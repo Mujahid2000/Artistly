@@ -163,13 +163,13 @@ export default function ExplorePage() {
             ) : null}
 
             {/* Load More Button */}
-            {!loading && !error && artists.length > 0 && (
+            {/* {!loading && !error && artists.length > 0 && (
               <FadeIn delay={0.6} className="text-center mt-12">
                 <AnimatedButton color="outline" >
                   Load More Artists
                 </AnimatedButton>
               </FadeIn>
-            )}
+            )} */}
           </div>
         </div>
       </div>

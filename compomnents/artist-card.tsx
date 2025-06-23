@@ -2,19 +2,17 @@
 
 
 import { CardContent } from "@/components/ui/card"
-
 import { Badge } from "@/components/ui/badge"
-
 import { MapPin, Star } from "lucide-react"
 import Image from "next/image"
 import { AnimatedCard } from "./ui/animated-card"
-import { ScaleOnHover } from "./motion/scale-on-hover"
 import { AnimatedButton } from "./ui/animated-button"
 
 // Updated interface to match the JSON structure
 export interface Artist {
   id: string
   name: string
+  image: string
   category: string
   city: string
   fee: string
@@ -32,19 +30,19 @@ interface ArtistCardProps {
 
 export function ArtistCard({ artist }: ArtistCardProps) {
   // Generate a placeholder image URL based on artist ID for consistency
-  const imageUrl = `/placeholder.svg?height=300&width=400&text=${encodeURIComponent(artist.name)}`
+  // const imageUrl = `/placeholder.svg?height=300&width=400&text=${encodeURIComponent(artist.name)}`
 
   return (
-    <AnimatedCard className="overflow-hidden">
+    <AnimatedCard className="overflow-hidden py-0">
       <div className="relative aspect-[4/3] overflow-hidden">
-        <ScaleOnHover scale={1.1}>
+        <div className="py-0">
           <Image
-            src={imageUrl || "/placeholder.svg"}
+            src={artist?.image || "/placeholder.svg"}
             alt={artist.name}
             fill
-            className="object-cover transition-transform duration-300"
+            className="object-cover py-0 transition-transform duration-300"
           />
-        </ScaleOnHover>
+        </div>
         {artist.status === "active" && (
           <Badge className="absolute top-3 left-3 bg-green-500 hover:bg-green-600">Verified</Badge>
         )}

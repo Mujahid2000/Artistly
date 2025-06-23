@@ -2,6 +2,7 @@
   {
     "id": "1",
     "name": "Sarah Johnson",
+    "image": "https://res.cloudinary.com/diez3alve/image/upload/v1750687932/360_F_326521465_d3Lv3za5GEGqYAR3M8bem2mHY1vjvmJP_j079jk.jpg",
     "category": "Singer",
     "city": "New York, NY",
     "fee": "$500-800",
@@ -15,6 +16,7 @@
   {
     "id": "2",
     "name": "Mike Chen",
+    "image": "https://res.cloudinary.com/diez3alve/image/upload/v1750687934/istockphoto-858614728-612x612_wxrpxf.jpg",
     "category": "DJ",
     "city": "Los Angeles, CA",
     "fee": "$300-600",
@@ -28,6 +30,7 @@
   {
     "id": "3",
     "name": "Dance Fusion Crew",
+    "image": "https://res.cloudinary.com/diez3alve/image/upload/v1750688225/360_F_257036699_P75JW1i77y6ukIofLXsQ6ZsgF7Hh2LgI_zrlhhk.jpg",
     "category": "Dancer",
     "city": "Chicago, IL",
     "fee": "$800-1200",
@@ -41,6 +44,7 @@
   {
     "id": "4",
     "name": "Comedy King Dave",
+    "image": "https://res.cloudinary.com/diez3alve/image/upload/v1750687933/comic-vs-comedian_oeq1cg.webp",
     "category": "Comedian",
     "city": "Houston, TX",
     "fee": "$400-700",
@@ -54,6 +58,7 @@
   {
     "id": "5",
     "name": "Jazz Quartet Elite",
+    "image": "https://res.cloudinary.com/diez3alve/image/upload/v1750687933/handsome-young-acoustic-guitar-blues-player-with-tattoos-arms-performing-his-musical-skills_613910-52_lfjbop.avif",
     "category": "Musician",
     "city": "New York, NY",
     "fee": "$1000-1500",
@@ -67,6 +72,7 @@
   {
     "id": "6",
     "name": "Magic Mike Wonder",
+    "image": "https://res.cloudinary.com/diez3alve/image/upload/v1750687932/360_F_28484447_5MlqO9GfuSMj8gzktaqgeCtgwYTqwjos_t5wfty.jpg",
     "category": "Magician",
     "city": "Phoenix, AZ",
     "fee": "$350-550",
@@ -80,6 +86,7 @@
   {
     "id": "7",
     "name": "Rock Legends Band",
+    "image": "https://res.cloudinary.com/diez3alve/image/upload/v1750688349/photo-1598387181032-a3103a2db5b3_ybxxhd.jpg",
     "category": "Band",
     "city": "San Diego, CA",
     "fee": "$1200-2000",
@@ -93,6 +100,7 @@
   {
     "id": "8",
     "name": "Emma Rodriguez",
+    "image": "https://res.cloudinary.com/diez3alve/image/upload/v1750687932/360_F_326521465_d3Lv3za5GEGqYAR3M8bem2mHY1vjvmJP_j079jk.jpg",
     "category": "Singer",
     "city": "Dallas, TX",
     "fee": "$600-900",
@@ -106,6 +114,7 @@
   {
     "id": "9",
     "name": "Street Dance Collective",
+    "image": "https://res.cloudinary.com/diez3alve/image/upload/v1750688480/4256308_Street_dancer_rdj4yv.jpg",
     "category": "Dancer",
     "city": "Miami, FL",
     "fee": "$700-1000",
@@ -119,6 +128,7 @@
   {
     "id": "10",
     "name": "DJ Electro Beats",
+    "image": "https://res.cloudinary.com/diez3alve/image/upload/v1750688528/istockphoto-160549904-612x612_hryrs5.jpg",
     "category": "DJ",
     "city": "Las Vegas, NV",
     "fee": "$800-1200",
@@ -132,6 +142,7 @@
   {
     "id": "11",
     "name": "Classical Strings Ensemble",
+    "image": "https://res.cloudinary.com/diez3alve/image/upload/v1750688580/string-quartet-ensembles-ever-8af3ef3_cr6jdq.jpg",
     "category": "Musician",
     "city": "Boston, MA",
     "fee": "$1500-2500",
@@ -145,6 +156,7 @@
   {
     "id": "12",
     "name": "Stand-Up Steve",
+    "image": "https://res.cloudinary.com/diez3alve/image/upload/v1750688669/Zakir_khan_2_z64aul.jpg",
     "category": "Comedian",
     "city": "Seattle, WA",
     "fee": "$300-500",
