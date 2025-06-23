@@ -1,4 +1,5 @@
-import { ArtistCategories } from "@/compomnents/artist-categories";
+
+import ArtistCategories from "@/compomnents/artist-categories";
 import { ArtistCTA } from "@/compomnents/artist-cta";
 import { HeroSection } from "@/compomnents/hero-section";
 import { HowItWorks } from "@/compomnents/how-it-works";

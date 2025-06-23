@@ -20,7 +20,7 @@ export interface OnboardFormData {
 
 export async function submitArtistApplication(formData: OnboardFormData) {
   try {
-    // Read the current artists data
+    // read the current artists data
     const filePath = join(process.cwd(), "data", "artists.json")
     const fileContents = await readFile(filePath, "utf8")
     interface Artist {
@@ -43,10 +43,10 @@ export async function submitArtistApplication(formData: OnboardFormData) {
     }
     const artists: Artist[] = JSON.parse(fileContents);
 
-    // Generate new artist ID
+    // generate new artist ID
     const newId = (Math.max(...artists.map((a: Artist) => Number.parseInt(a.id))) + 1).toString()
 
-    // Create new artist object matching the JSON structure
+    // form data
     const newArtist = {
       id: newId,
       name: formData.name,
@@ -55,11 +55,11 @@ export async function submitArtistApplication(formData: OnboardFormData) {
       fee: formData.fee,
       email: formData.email,
       phone: formData.phone,
-      status: "pending" as const, // New applications start as pending
+      status: "pending" as const, 
       joinDate: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
-      rating: 0, // New artists start with 0 rating
-      totalBookings: 0, // New artists start with 0 bookings
-      // Additional fields for extended artist profile
+      rating: 0, 
+      totalBookings: 0, 
+      
       bio: formData.bio,
       experience: formData.experience,
       languages: formData.languages,
@@ -67,13 +67,13 @@ export async function submitArtistApplication(formData: OnboardFormData) {
       image: formData.image,
     }
 
-    // Add the new artist to the array
+    // add the new artist to the json data
     artists.push(newArtist)
 
-    // Write the updated data back to the file
+    // write the updated data back to the file
     await writeFile(filePath, JSON.stringify(artists, null, 2))
 
-    // Revalidate the pages that use this data
+    // revalidate the pages that use this data
     revalidatePath("/explore")
     revalidatePath("/dashboard")
 

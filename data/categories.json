@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Singers",
+    "icon": "Music",
+    "description": "Vocal artists for every genre",
+    "slug": "singers"
+  },
+  {
+    "title": "Dancers",
+    "icon": "Users",
+    "description": "Professional dance performers",
+    "slug": "dancers"
+  },
+  {
+    "title": "DJs",
+    "icon": "Headphones",
+    "description": "Music mixers and entertainers",
+    "slug": "djs"
+  },
+  {
+    "title": "Comedians",
+    "icon": "Laugh",
+    "description": "Stand-up and comedy acts",
+    "slug": "comedians"
+  }
+]

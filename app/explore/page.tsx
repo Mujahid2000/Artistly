@@ -21,7 +21,7 @@ interface ExplorePageProps {
   }>
 }
 
-// Server-side function to fetch artists from mock API
+
 async function fetchArtists(searchParams: {
   categories?: string
   locations?: string
@@ -117,7 +117,7 @@ async function fetchArtists(searchParams: {
   }
 }
 
-// Client-side filtering function (in case mock API doesn't support filtering)
+
 function applyClientSideFiltering(
   artists: Artist[],
   searchParams: {
@@ -152,7 +152,7 @@ function applyClientSideFiltering(
 
   if (minPrice > 0 || maxPrice < 10000) {
     filtered = filtered.filter((artist) => {
-      // Parse fee string (e.g., "$500-800" -> 500)
+      // Parse fee string 
       const priceValue = Number.parseInt(artist.fee.split("-")[0].replace("$", ""))
       return priceValue >= minPrice && priceValue <= maxPrice
     })
@@ -161,7 +161,7 @@ function applyClientSideFiltering(
   return filtered
 }
 
-// Server-side function to get current filter state from search params
+// get filter state
 function getFiltersFromSearchParams(searchParams: {
   categories?: string
   locations?: string
@@ -179,7 +179,7 @@ function getFiltersFromSearchParams(searchParams: {
   }
 }
 
-// Artists Content Server Component
+
 async function ArtistsContent({
   searchParams,
 }: {
@@ -191,7 +191,7 @@ async function ArtistsContent({
     view?: string
   }
 }) {
-  // Server-side data fetching from mock API
+
   const { artists, totalCount, filteredCount } = await fetchArtists(searchParams)
   const currentFilters = getFiltersFromSearchParams(searchParams)
   const viewMode = (searchParams.view as "grid" | "list") || "grid"
@@ -211,9 +211,9 @@ async function ArtistsContent({
           <ArtistFilters filters={currentFilters} totalArtists={totalCount} filteredCount={filteredCount} />
         </SlideIn>
 
-        {/* Main Content */}
+      
         <div className="flex-1">
-          {/* Results Header */}
+     
           <FadeIn delay={0.4} className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <p className="text-gray-600">
@@ -227,11 +227,11 @@ async function ArtistsContent({
               </div>
             </div>
 
-            {/* View Mode Toggle */}
+            {/* view mode  */}
             <ViewModeToggle currentView={viewMode} />
           </FadeIn>
 
-          {/* Active Filters Display */}
+          {/*  filtered data display */}
           {hasActiveFilters && (
             <FadeIn delay={0.5} className="mb-6">
               <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -254,7 +254,7 @@ async function ArtistsContent({
             </FadeIn>
           )}
 
-          {/* Artists Grid */}
+        
           {artists.length > 0 ? (
             <StaggerContainer
               className={`grid gap-6 ${
@@ -290,19 +290,19 @@ async function ArtistsContent({
 }
 
 export default async function ExplorePage({ searchParams }: ExplorePageProps) {
-  // ✅ RESOLVE THE PROMISE HERE
+  // resolve promises on here
   const resolvedSearchParams = await searchParams
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
+        {/*  Header */}
         <FadeIn className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Explore Artists</h1>
           <p className="text-lg text-gray-600">Discover talented performers for your next event</p>
         </FadeIn>
 
-        {/* Artists Content with Suspense */}
+        
         <Suspense fallback={<LoadingArtists />}>
           <ArtistsContent searchParams={resolvedSearchParams} />
         </Suspense>

@@ -1,8 +1,4 @@
-"use client"
-
-
 import { CardContent } from "@/components/ui/card"
-
 import { Music, Users, Headphones, Laugh } from "lucide-react"
 import Link from "next/link"
 import { FadeIn } from "./motion/fade-in"
@@ -10,34 +6,34 @@ import { StaggerContainer } from "./motion/stagger-container"
 import { StaggerItem } from "./motion/stagger-item"
 import { AnimatedCard } from "./ui/animated-card"
 
-const categories = [
-  {
-    title: "Singers",
-    icon: Music,
-    description: "Vocal artists for every genre",
-    slug: "singers",
-  },
-  {
-    title: "Dancers",
-    icon: Users,
-    description: "Professional dance performers",
-    slug: "dancers",
-  },
-  {
-    title: "DJs",
-    icon: Headphones,
-    description: "Music mixers and entertainers",
-    slug: "djs",
-  },
-  {
-    title: "Comedians",
-    icon: Laugh,
-    description: "Stand-up and comedy acts",
-    slug: "comedians",
-  },
-]
+// Map icon names to lucide-react components
+const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
+  Music,
+  Users,
+  Headphones,
+  Laugh,
+}
 
-export function ArtistCategories() {
+export type CategoryArr = Category[]
+
+export interface Category {
+  title: string
+  icon: string // This is the string name of the icon (e.g., "Music")
+  description: string
+  slug: string
+}
+
+async function getData() {
+  const res = await fetch('https://fdecc25b-52d4-4149-87a3-dd37158c68f8.mock.pstmn.io/category', {
+    next: { revalidate: 60 }, // optional: for ISR-like behavior
+  })
+  return res.json()
+}
+
+export default async function ArtistCategories() {
+  const data = await getData()
+ 
+
   return (
     <section className="py-16 lg:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,8 +45,16 @@ export function ArtistCategories() {
         </FadeIn>
 
         <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((category, index) => {
-            const IconComponent = category.icon
+          {data.map((category: Category, index: number) => {
+            // Get the icon component from the iconMap using the category.icon string
+            const IconComponent = iconMap[category.icon]
+            
+            // Fallback in case the icon is not found
+            if (!IconComponent) {
+              console.warn(`Icon "${category.icon}" not found in iconMap`)
+              return null // Skip rendering this item or provide a default icon
+            }
+
             return (
               <StaggerItem key={index}>
                 <Link href={`/explore?category=${category.slug}`}>

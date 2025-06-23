@@ -35,7 +35,7 @@ const onboardSchema = z.object({
 
 type OnboardFormData = z.infer<typeof onboardSchema>
 
-// Updated categories to match JSON structure
+// match with categories with json data
 const categories = ["Singer", "DJ", "Dancer", "Comedian", "Musician", "Magician", "Band", "Other"]
 
 const languages = [
@@ -197,7 +197,7 @@ console.log(data)
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Join Artistly</h1>
             <p className="text-gray-600 mb-6">Create your artist profile and start getting booked for events</p>
 
-            {/* Progress Bar */}
+            {/* steps section */}
             <div className="flex items-center justify-between mb-4">
               {Array.from({ length: totalSteps }, (_, i) => (
                 <div key={i} className="flex items-center">
@@ -220,7 +220,7 @@ console.log(data)
             </div>
           </div>
 
-          {/* Error Alert */}
+          {/* display error */}
           {submitError && (
             <Alert className="mb-6 border-red-200 bg-red-50">
               <AlertCircle className="h-4 w-4 text-red-600" />
@@ -239,7 +239,7 @@ console.log(data)
               </CardHeader>
 
               <CardContent className="space-y-6">
-                {/* Step 1: Basic Information */}
+                {/* Step 1: basic information */}
                 {currentStep === 1 && (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -272,7 +272,7 @@ console.log(data)
                   </>
                 )}
 
-                {/* Step 2: Professional Details */}
+                {/* Step 2: professional details */}
                 {currentStep === 2 && (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -371,7 +371,7 @@ console.log(data)
                   </>
                 )}
 
-                {/* Step 3: Pricing & Availability */}
+                {/* Step 3: pricing and availability part*/}
                 {currentStep === 3 && (
                   <>
                     <div>
@@ -446,7 +446,7 @@ console.log(data)
               </CardContent>
             </Card>
 
-            {/* Navigation Buttons */}
+            {/* next and previous buttons */}
             <div className="flex justify-between mt-6">
               <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
