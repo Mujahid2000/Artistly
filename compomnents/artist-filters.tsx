@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
-import { X, Filter } from "lucide-react"
-import { useState } from "react"
+import { X, Filter, Loader2 } from "lucide-react"
+import { useState, useTransition } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 
 export interface FilterState {
   categories: string[]
@@ -16,14 +17,14 @@ export interface FilterState {
 
 interface ArtistFiltersProps {
   filters: FilterState
-  onFiltersChange: (filters: FilterState) => void
-  onClearFilters: () => void
+  totalArtists: number
+  filteredCount: number
 }
 
-// Updated categories to match JSON data
+// Updated categories to match your API data
 const categories = ["Singer", "DJ", "Dancer", "Comedian", "Musician", "Magician", "Band"]
 
-// Updated locations to match JSON data
+// Updated locations to match your API data
 const locations = [
   "New York, NY",
   "Los Angeles, CA",
@@ -40,38 +41,112 @@ const locations = [
   "Seattle, WA",
 ]
 
-export function ArtistFilters({ filters, onFiltersChange, onClearFilters }: ArtistFiltersProps) {
+export function ArtistFilters({ filters }: ArtistFiltersProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [localFilters, setLocalFilters] = useState<FilterState>(filters)
   const [isOpen, setIsOpen] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const handleCategoryChange = (category: string, checked: boolean) => {
-    const newCategories = checked ? [...filters.categories, category] : filters.categories.filter((c) => c !== category)
+    const newCategories = checked
+      ? [...localFilters.categories, category]
+      : localFilters.categories.filter((c) => c !== category)
 
-    onFiltersChange({
-      ...filters,
+    setLocalFilters({
+      ...localFilters,
       categories: newCategories,
     })
   }
 
   const handleLocationChange = (location: string, checked: boolean) => {
-    const newLocations = checked ? [...filters.locations, location] : filters.locations.filter((l) => l !== location)
+    const newLocations = checked
+      ? [...localFilters.locations, location]
+      : localFilters.locations.filter((l) => l !== location)
 
-    onFiltersChange({
-      ...filters,
+    setLocalFilters({
+      ...localFilters,
       locations: newLocations,
     })
   }
 
   const handlePriceRangeChange = (value: number[]) => {
-    onFiltersChange({
-      ...filters,
+    setLocalFilters({
+      ...localFilters,
       priceRange: [value[0], value[1]],
     })
   }
 
+  const applyFilters = () => {
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString())
+
+      // Update categories
+      if (localFilters.categories.length > 0) {
+        params.set("categories", localFilters.categories.join(","))
+      } else {
+        params.delete("categories")
+      }
+
+      // Update locations
+      if (localFilters.locations.length > 0) {
+        params.set("locations", localFilters.locations.join(","))
+      } else {
+        params.delete("locations")
+      }
+
+      // Update price range
+      if (localFilters.priceRange[0] > 0) {
+        params.set("minPrice", localFilters.priceRange[0].toString())
+      } else {
+        params.delete("minPrice")
+      }
+
+      if (localFilters.priceRange[1] < 10000) {
+        params.set("maxPrice", localFilters.priceRange[1].toString())
+      } else {
+        params.delete("maxPrice")
+      }
+
+      // Navigate with new params (this will trigger server-side fetch)
+      router.push(`/explore?${params.toString()}`)
+      setIsOpen(false)
+    })
+  }
+
+  const clearAllFilters = () => {
+    startTransition(() => {
+      setLocalFilters({
+        categories: [],
+        locations: [],
+        priceRange: [0, 10000],
+      })
+      router.push("/explore")
+      setIsOpen(false)
+    })
+  }
+
+  const removeFilter = (type: "category" | "location", value: string) => {
+    if (type === "category") {
+      handleCategoryChange(value, false)
+    } else {
+      handleLocationChange(value, false)
+    }
+  }
+
+  const removePriceFilter = () => {
+    setLocalFilters({
+      ...localFilters,
+      priceRange: [0, 10000],
+    })
+  }
+
   const activeFiltersCount =
-    filters.categories.length +
-    filters.locations.length +
-    (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000 ? 1 : 0)
+    localFilters.categories.length +
+    localFilters.locations.length +
+    (localFilters.priceRange[0] > 0 || localFilters.priceRange[1] < 10000 ? 1 : 0)
+
+  const hasChanges = JSON.stringify(localFilters) !== JSON.stringify(filters)
 
   return (
     <>
@@ -93,44 +168,47 @@ export function ArtistFilters({ filters, onFiltersChange, onClearFilters }: Arti
       {/* Filter Panel */}
       <div className={`lg:block ${isOpen ? "block" : "hidden"}`}>
         <Card className="sticky top-24">
-          <CardHeader className="pb-4">
+          <CardHeader className=" gap-0">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Filters</CardTitle>
               {activeFiltersCount > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={onClearFilters}
+                  onClick={clearAllFilters}
                   className="text-purple-600 hover:text-purple-700"
+                  disabled={isPending}
                 >
-                  Clear All
+                  {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Clear All"}
                 </Button>
               )}
             </div>
           </CardHeader>
 
           <CardContent className="space-y-6">
+            
+
             {/* Active Filters */}
             {activeFiltersCount > 0 && (
               <div>
                 <h4 className="font-medium mb-2">Active Filters</h4>
                 <div className="flex flex-wrap gap-2">
-                  {filters.categories.map((category) => (
+                  {localFilters.categories.map((category) => (
                     <Badge key={category} variant="secondary" className="flex items-center gap-1">
                       {category}
-                      <X className="w-3 h-3 cursor-pointer" onClick={() => handleCategoryChange(category, false)} />
+                      <X className="w-3 h-3 cursor-pointer" onClick={() => removeFilter("category", category)} />
                     </Badge>
                   ))}
-                  {filters.locations.map((location) => (
+                  {localFilters.locations.map((location) => (
                     <Badge key={location} variant="secondary" className="flex items-center gap-1">
                       {location}
-                      <X className="w-3 h-3 cursor-pointer" onClick={() => handleLocationChange(location, false)} />
+                      <X className="w-3 h-3 cursor-pointer" onClick={() => removeFilter("location", location)} />
                     </Badge>
                   ))}
-                  {(filters.priceRange[0] > 0 || filters.priceRange[1] < 10000) && (
+                  {(localFilters.priceRange[0] > 0 || localFilters.priceRange[1] < 10000) && (
                     <Badge variant="secondary" className="flex items-center gap-1">
-                      ${filters.priceRange[0]} - ${filters.priceRange[1]}
-                      <X className="w-3 h-3 cursor-pointer" onClick={() => handlePriceRangeChange([0, 10000])} />
+                      ${localFilters.priceRange[0]} - ${localFilters.priceRange[1]}
+                      <X className="w-3 h-3 cursor-pointer" onClick={removePriceFilter} />
                     </Badge>
                   )}
                 </div>
@@ -145,7 +223,7 @@ export function ArtistFilters({ filters, onFiltersChange, onClearFilters }: Arti
                   <div key={category} className="flex items-center space-x-2">
                     <Checkbox
                       id={category}
-                      checked={filters.categories.includes(category)}
+                      checked={localFilters.categories.includes(category)}
                       onCheckedChange={(checked) => handleCategoryChange(category, checked as boolean)}
                     />
                     <label
@@ -167,7 +245,7 @@ export function ArtistFilters({ filters, onFiltersChange, onClearFilters }: Arti
                   <div key={location} className="flex items-center space-x-2">
                     <Checkbox
                       id={location}
-                      checked={filters.locations.includes(location)}
+                      checked={localFilters.locations.includes(location)}
                       onCheckedChange={(checked) => handleLocationChange(location, checked as boolean)}
                     />
                     <label
@@ -186,7 +264,7 @@ export function ArtistFilters({ filters, onFiltersChange, onClearFilters }: Arti
               <h4 className="font-medium mb-3">Price Range</h4>
               <div className="px-2">
                 <Slider
-                  value={filters.priceRange}
+                  value={localFilters.priceRange}
                   onValueChange={handlePriceRangeChange}
                   max={10000}
                   min={0}
@@ -194,10 +272,31 @@ export function ArtistFilters({ filters, onFiltersChange, onClearFilters }: Arti
                   className="w-full"
                 />
                 <div className="flex justify-between text-sm text-gray-500 mt-2">
-                  <span>${filters.priceRange[0]}</span>
-                  <span>${filters.priceRange[1]}+</span>
+                  <span>${localFilters.priceRange[0]}</span>
+                  <span>${localFilters.priceRange[1]}+</span>
                 </div>
               </div>
+            </div>
+
+            {/* Apply Filters Button */}
+            <div className="pt-4 border-t">
+              <Button onClick={applyFilters} className="w-full" disabled={!hasChanges || isPending}>
+                {isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Applying Filters...
+                  </>
+                ) : (
+                  <>
+                    Apply Filters
+                    {hasChanges && (
+                      <Badge variant="secondary" className="ml-2 bg-white text-purple-600">
+                        {activeFiltersCount}
+                      </Badge>
+                    )}
+                  </>
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>

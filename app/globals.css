@@ -2,7 +2,16 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+.bg-primary {
+    background-color: oklch(49.6% 0.265 301.924);
+}
 
+.data-\[state\=checked\]\:bg-primary[data-state="checked"] {
+    background-color: oklch(49.6% 0.265 301.924);
+}
+.data-\[state\=checked\]\:border-primary[data-state="checked"] {
+    border-color: oklch(49.6% 0.265 301.924);
+}
 @layer base {
   :root {
     --background: 0 0% 100%;

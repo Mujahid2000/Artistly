@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,7 +10,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
+
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -25,7 +25,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MoreHorizontal, Search, Eye, Edit, Trash2, Mail, Phone, Star, Users } from "lucide-react"
+import { MoreHorizontal, Search, Eye,  Trash2,  Star, Users, Loader2 } from "lucide-react"
+import { useDebounce } from "@/hooks/use-debounce"
 
 // Updated interface to match JSON structure
 export interface ArtistsTableProps {
@@ -50,18 +51,46 @@ export function ArtistsTable({ artists }: ArtistsTableProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [filteredArtists, setFilteredArtists] = useState(artists)
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null)
+  const [isSearching, setIsSearching] = useState(false)
 
-  // Filter artists based on search term
-  const handleSearch = (term: string) => {
-    setSearchTerm(term)
-    const filtered = artists.filter(
-      (artist) =>
-        artist.name.toLowerCase().includes(term.toLowerCase()) ||
-        artist.category.toLowerCase().includes(term.toLowerCase()) ||
-        artist.city.toLowerCase().includes(term.toLowerCase()),
-    )
-    setFilteredArtists(filtered)
-  }
+  // Debounce search term to avoid excessive filtering
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
+
+  // Use useEffect to handle search filtering
+  useEffect(() => {
+    const performSearch = async () => {
+      setIsSearching(true)
+
+      // Simulate API search delay (in real app, this would be an API call)
+      await new Promise((resolve) => setTimeout(resolve, 200))
+
+      if (!debouncedSearchTerm.trim()) {
+        setFilteredArtists(artists)
+      } else {
+        const filtered = artists.filter(
+          (artist) =>
+            artist.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+            artist.category.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+            artist.city.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+            artist.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+            artist.phone.includes(debouncedSearchTerm) ||
+            artist.status.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
+        )
+        setFilteredArtists(filtered)
+      }
+
+      setIsSearching(false)
+    }
+
+    performSearch()
+  }, [debouncedSearchTerm, artists])
+
+  // Reset filtered artists when the original artists data changes
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredArtists(artists)
+    }
+  }, [artists, searchTerm])
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -93,12 +122,10 @@ export function ArtistsTable({ artists }: ArtistsTableProps) {
     setFilteredArtists(updatedArtists)
   }
 
-  const handleContact = (artist: Artist, method: "email" | "phone") => {
-    if (method === "email") {
-      window.location.href = `mailto:${artist.email}`
-    } else {
-      window.location.href = `tel:${artist.phone}`
-    }
+
+
+  const clearSearch = () => {
+    setSearchTerm("")
   }
 
   return (
@@ -108,16 +135,50 @@ export function ArtistsTable({ artists }: ArtistsTableProps) {
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
-            placeholder="Search artists..."
+            placeholder="Search artists by name, category, city, email, phone, or status..."
             value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="pl-10"
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-10"
           />
+          {isSearching && (
+            <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 animate-spin" />
+          )}
+          {searchTerm && !isSearching && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearSearch}
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-100"
+            >
+              ×
+            </Button>
+          )}
         </div>
-        <div className="text-sm text-gray-600">
-          Showing {filteredArtists.length} of {artists.length} artists
+        <div className="text-sm text-gray-600 flex items-center gap-2">
+          {isSearching && <Loader2 className="w-4 h-4 animate-spin" />}
+          <span>
+            Showing {filteredArtists.length} of {artists.length} artists
+            {searchTerm && ` for "${searchTerm}"`}
+          </span>
         </div>
       </div>
+
+      {/* Search Results Info */}
+      {searchTerm && !isSearching && (
+        <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <div className="flex items-center gap-2">
+            <Search className="w-4 h-4 text-blue-600" />
+            <span className="text-sm text-blue-800">
+              {filteredArtists.length > 0
+                ? `Found ${filteredArtists.length} artist${filteredArtists.length === 1 ? "" : "s"} matching "${searchTerm}"`
+                : `No artists found matching "${searchTerm}"`}
+            </span>
+          </div>
+          <Button variant="ghost" size="sm" onClick={clearSearch} className="text-blue-600 hover:text-blue-800">
+            Clear search
+          </Button>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -171,7 +232,9 @@ export function ArtistsTable({ artists }: ArtistsTableProps) {
               <div>
                 <p className="text-sm font-medium text-gray-600">Avg Rating</p>
                 <p className="text-2xl font-bold">
-                  {(artists.reduce((sum, a) => sum + a.rating, 0) / artists.length).toFixed(1)}
+                  {artists.length > 0
+                    ? (artists.reduce((sum, a) => sum + a.rating, 0) / artists.length).toFixed(1)
+                    : "0.0"}
                 </p>
               </div>
               <Star className="w-8 h-8 text-yellow-500 fill-current" />
@@ -183,7 +246,14 @@ export function ArtistsTable({ artists }: ArtistsTableProps) {
       {/* Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Artists Directory</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            <span>Artists Directory</span>
+            {searchTerm && (
+              <Badge variant="outline" className="ml-2">
+                Filtered Results
+              </Badge>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
@@ -200,16 +270,47 @@ export function ArtistsTable({ artists }: ArtistsTableProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredArtists.length === 0 ? (
+                {isSearching ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8">
+                      <div className="flex items-center justify-center gap-2 text-gray-500">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Searching artists...
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : filteredArtists.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-gray-500">
-                      No artists found matching your search criteria
+                      {searchTerm ? (
+                        <div className="space-y-2">
+                          <p>No artists found matching &quot;{searchTerm}&quot;</p>
+                          <Button variant="outline" size="sm" onClick={clearSearch}>
+                            Clear search to see all artists
+                          </Button>
+                        </div>
+                      ) : (
+                        "No artists found"
+                      )}
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredArtists.map((artist) => (
                     <TableRow key={artist.id} className="hover:bg-gray-50">
-                      <TableCell className="font-medium">{artist.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {searchTerm && artist.name.toLowerCase().includes(searchTerm.toLowerCase()) ? (
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: artist.name.replace(
+                                new RegExp(`(${searchTerm})`, "gi"),
+                                '<mark class="bg-yellow-200 px-1 rounded">$1</mark>',
+                              ),
+                            }}
+                          />
+                        ) : (
+                          artist.name
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge variant="outline">{artist.category}</Badge>
                       </TableCell>
@@ -237,20 +338,8 @@ export function ArtistsTable({ artists }: ArtistsTableProps) {
                               <Eye className="mr-2 h-4 w-4" />
                               View Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEdit(artist)}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleContact(artist, "email")}>
-                              <Mail className="mr-2 h-4 w-4" />
-                              Send Email
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleContact(artist, "phone")}>
-                              <Phone className="mr-2 h-4 w-4" />
-                              Call
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
+                            
+                            
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <DropdownMenuItem
@@ -265,7 +354,7 @@ export function ArtistsTable({ artists }: ArtistsTableProps) {
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete {artist.name}&#39;s profile
+                                    This action cannot be undone. This will permanently delete {artist.name}&apos;s profile
                                     and remove their data from our servers.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
