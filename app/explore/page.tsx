@@ -51,7 +51,7 @@ async function fetchArtists(searchParams: {
     }
 
     // Fetch from your mock API
-    const apiUrl = "https://f645f86c-a1f1-4673-9384-7c09e83d94b6.mock.pstmn.io/artists"
+    const apiUrl = "https://ba3a233e-6114-4fd4-8ac6-9f3016bf52b1.mock.pstmn.io/artists"
     const fullUrl = params.toString() ? `${apiUrl}?${params.toString()}` : apiUrl
 
     console.log("Fetching from:", fullUrl) // Debug log

@@ -35,7 +35,7 @@ const onboardSchema = z.object({
 
 type OnboardFormData = z.infer<typeof onboardSchema>
 
-// match with categories with json data
+// Updated categories to match JSON structure
 const categories = ["Singer", "DJ", "Dancer", "Comedian", "Musician", "Magician", "Band", "Other"]
 
 const languages = [
@@ -96,7 +96,7 @@ export default function OnboardPage() {
   const onSubmit = async (data: OnboardFormData) => {
     setIsSubmitting(true)
     setSubmitError(null)
-console.log(data)
+    console.log(data)
     try {
       const result = await submitArtistApplication(data)
 
@@ -197,7 +197,7 @@ console.log(data)
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Join Artistly</h1>
             <p className="text-gray-600 mb-6">Create your artist profile and start getting booked for events</p>
 
-            {/* steps section */}
+            {/* Progress Bar */}
             <div className="flex items-center justify-between mb-4">
               {Array.from({ length: totalSteps }, (_, i) => (
                 <div key={i} className="flex items-center">
@@ -220,7 +220,7 @@ console.log(data)
             </div>
           </div>
 
-          {/* display error */}
+          {/* Error Alert */}
           {submitError && (
             <Alert className="mb-6 border-red-200 bg-red-50">
               <AlertCircle className="h-4 w-4 text-red-600" />
@@ -239,7 +239,7 @@ console.log(data)
               </CardHeader>
 
               <CardContent className="space-y-6">
-                {/* Step 1: basic information */}
+                {/* Step 1: Basic Information */}
                 {currentStep === 1 && (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -272,18 +272,18 @@ console.log(data)
                   </>
                 )}
 
-                {/* Step 2: professional details */}
+                {/* Step 2: Professional Details */}
                 {currentStep === 2 && (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="category">Category *</Label>
+                        <Label className="py-2" htmlFor="category">Category *</Label>
                         <Controller
                           name="category"
                           control={control}
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger>
+                              <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select your category" />
                               </SelectTrigger>
                               <SelectContent>
@@ -300,13 +300,13 @@ console.log(data)
                       </div>
 
                       <div>
-                        <Label htmlFor="experience">Experience Level *</Label>
+                        <Label className="py-2" htmlFor="experience">Experience Level *</Label>
                         <Controller
                           name="experience"
                           control={control}
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger>
+                              <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select experience level" />
                               </SelectTrigger>
                               <SelectContent>
@@ -324,7 +324,7 @@ console.log(data)
                     </div>
 
                     <div>
-                      <Label htmlFor="bio">Bio *</Label>
+                      <Label className="py-2" htmlFor="bio">Bio *</Label>
                       <Textarea
                         id="bio"
                         {...register("bio")}
@@ -371,7 +371,7 @@ console.log(data)
                   </>
                 )}
 
-                {/* Step 3: pricing and availability part*/}
+                {/* Step 3: Pricing & Availability */}
                 {currentStep === 3 && (
                   <>
                     <div>
@@ -446,7 +446,7 @@ console.log(data)
               </CardContent>
             </Card>
 
-            {/* next and previous buttons */}
+            {/* Navigation Buttons */}
             <div className="flex justify-between mt-6">
               <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
                 <ArrowLeft className="w-4 h-4 mr-2" />

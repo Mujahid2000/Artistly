@@ -3,6 +3,7 @@
 import { writeFile, readFile } from "fs/promises"
 import { join } from "path"
 import { revalidatePath } from "next/cache"
+import { Artist } from "@/compomnents/artist-card"
 
 export interface OnboardFormData {
   name: string
@@ -20,33 +21,15 @@ export interface OnboardFormData {
 
 export async function submitArtistApplication(formData: OnboardFormData) {
   try {
-    // read the current artists data
+    // Read the current artists data
     const filePath = join(process.cwd(), "data", "artists.json")
     const fileContents = await readFile(filePath, "utf8")
-    interface Artist {
-      id: string;
-      name: string;
-      category: string;
-      city: string;
-      fee: string;
-      email: string;
-      phone: string;
-      status: "pending" | "approved" | "rejected";
-      joinDate: string;
-      rating: number;
-      totalBookings: number;
-      bio: string;
-      experience: string;
-      languages: string[];
-      availability: string[];
-      image: string;
-    }
-    const artists: Artist[] = JSON.parse(fileContents);
+    const artists = JSON.parse(fileContents)
 
-    // generate new artist ID
+    // Generate new artist ID
     const newId = (Math.max(...artists.map((a: Artist) => Number.parseInt(a.id))) + 1).toString()
 
-    // form data
+    // Create new artist object matching the JSON structure
     const newArtist = {
       id: newId,
       name: formData.name,
@@ -55,11 +38,11 @@ export async function submitArtistApplication(formData: OnboardFormData) {
       fee: formData.fee,
       email: formData.email,
       phone: formData.phone,
-      status: "pending" as const, 
+      status: "pending" as const, // New applications start as pending
       joinDate: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
-      rating: 0, 
-      totalBookings: 0, 
-      
+      rating: 0, // New artists start with 0 rating
+      totalBookings: 0, // New artists start with 0 bookings
+      // Additional fields for extended artist profile
       bio: formData.bio,
       experience: formData.experience,
       languages: formData.languages,
@@ -67,13 +50,13 @@ export async function submitArtistApplication(formData: OnboardFormData) {
       image: formData.image,
     }
 
-    // add the new artist to the json data
+    // Add the new artist to the array
     artists.push(newArtist)
 
-    // write the updated data back to the file
+    // Write the updated data back to the file
     await writeFile(filePath, JSON.stringify(artists, null, 2))
 
-    // revalidate the pages that use this data
+    // Revalidate the pages that use this data
     revalidatePath("/explore")
     revalidatePath("/dashboard")
 

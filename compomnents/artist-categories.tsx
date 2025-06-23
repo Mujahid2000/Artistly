@@ -24,7 +24,7 @@ export interface Category {
 }
 
 async function getData() {
-  const res = await fetch('https://fdecc25b-52d4-4149-87a3-dd37158c68f8.mock.pstmn.io/category', {
+  const res = await fetch('https://ba3a233e-6114-4fd4-8ac6-9f3016bf52b1.mock.pstmn.io/category', {
     next: { revalidate: 60 }, // optional: for ISR-like behavior
   })
   return res.json()
