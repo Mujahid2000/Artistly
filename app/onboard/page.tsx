@@ -96,7 +96,7 @@ export default function OnboardPage() {
   const onSubmit = async (data: OnboardFormData) => {
     setIsSubmitting(true)
     setSubmitError(null)
-
+console.log(data)
     try {
       const result = await submitArtistApplication(data)
 

@@ -166,5 +166,101 @@
     "joinDate": "2024-02-12",
     "rating": 4.3,
     "totalBookings": 26
+  },
+  {
+    "id": "13",
+    "name": "Mujahidul Islam",
+    "category": "Musician",
+    "city": "Dhaka",
+    "fee": "$1200-2000",
+    "email": "developermujahid2001@gmail.com",
+    "phone": "01987064729",
+    "status": "pending",
+    "joinDate": "2025-06-23",
+    "rating": 0,
+    "totalBookings": 0,
+    "bio": "ggegherherherherghqerhqerhergergerv3egerhrvebertbherghergerg",
+    "experience": "Advanced (5-10 years)",
+    "languages": [
+      "English",
+      "German"
+    ],
+    "availability": [
+      "Weekdays",
+      "Daytime"
+    ],
+    "image": "blob:http://localhost:3000/23361f0d-915c-4339-98e0-e7901119f48e"
+  },
+  {
+    "id": "14",
+    "name": "Mujahidul Islam",
+    "category": "Musician",
+    "city": "Dhaka, Bangladesh",
+    "fee": "$800-1200",
+    "email": "developermujahid2001@gmail.com",
+    "phone": "01987064729",
+    "status": "pending",
+    "joinDate": "2025-06-23",
+    "rating": 0,
+    "totalBookings": 0,
+    "bio": "wrg3rgewrgergqwrfgqwefgqwerefqwefqw3g5ghqwergqrgqwrgqwfqwre",
+    "experience": "Advanced (5-10 years)",
+    "languages": [
+      "Chinese",
+      "English"
+    ],
+    "availability": [
+      "Weekdays",
+      "Daytime"
+    ],
+    "image": "blob:http://localhost:3000/3e91f1de-26aa-41b4-81ac-3b1148691f03"
+  },
+  {
+    "id": "15",
+    "name": "Mujahidul Islam",
+    "category": "Band",
+    "city": "Dhaka, Bangladesh",
+    "fee": "$1200-2000",
+    "email": "developermujahid2001@gmail.com",
+    "phone": "01987064729",
+    "status": "pending",
+    "joinDate": "2025-06-23",
+    "rating": 0,
+    "totalBookings": 0,
+    "bio": "Create your artist profile and start getting booked for events",
+    "experience": "Advanced (5-10 years)",
+    "languages": [
+      "English",
+      "German"
+    ],
+    "availability": [
+      "Weekdays",
+      "Daytime"
+    ],
+    "image": "blob:http://localhost:3000/d886c199-8851-4f02-9d00-32e831670119"
+  },
+  {
+    "id": "16",
+    "name": "Mujahidul Islam",
+    "category": "Musician",
+    "city": "Dhaka, Bangladesh",
+    "fee": "$1200-2000",
+    "email": "developermujahid2001@gmail.com",
+    "phone": "01987064729",
+    "status": "pending",
+    "joinDate": "2025-06-23",
+    "rating": 0,
+    "totalBookings": 0,
+    "bio": "Create your artist profile and start getting booked for events",
+    "experience": "Professional (10+ years)",
+    "languages": [
+      "English",
+      "German"
+    ],
+    "availability": [
+      "Weekdays",
+      "Daytime"
+    ],
+    "image": "blob:http://localhost:3000/a149da5a-4c45-41d6-a4a0-afb15e61f2ba"
   }
 ]

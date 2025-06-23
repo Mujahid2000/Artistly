@@ -9,19 +9,26 @@ import { StaggerItem } from "@/compomnents/motion/stagger-item"
 import { ViewModeToggle } from "@/compomnents/view-mode-toggle"
 import { Suspense } from "react"
 
+export const dynamic = 'force-dynamic';
 
 interface ExplorePageProps {
-  searchParams: {
+  searchParams: Promise<{
     categories?: string
     locations?: string
     minPrice?: string
     maxPrice?: string
     view?: string
-  }
+  }>
 }
 
 // Server-side function to fetch artists from mock API
-async function fetchArtists(searchParams: ExplorePageProps["searchParams"]): Promise<{
+async function fetchArtists(searchParams: {
+  categories?: string
+  locations?: string
+  minPrice?: string
+  maxPrice?: string
+  view?: string
+}): Promise<{
   artists: Artist[]
   totalCount: number
   filteredCount: number
@@ -77,6 +84,7 @@ async function fetchArtists(searchParams: ExplorePageProps["searchParams"]): Pro
       // If the response is directly an array of artists
       artists = data
       totalCount = data.length
+      // filteredCount = data.length
     } else if (data.artists && Array.isArray(data.artists)) {
       // If the response has an artists property
       artists = data.artists
@@ -86,6 +94,7 @@ async function fetchArtists(searchParams: ExplorePageProps["searchParams"]): Pro
       // If the response has a data property
       artists = data.data
       totalCount = data.totalCount || data.data.length
+      // filteredCount = data.filteredCount || data.data.length
     }
 
     // Apply client-side filtering if the mock API doesn't support server-side filtering
@@ -109,7 +118,16 @@ async function fetchArtists(searchParams: ExplorePageProps["searchParams"]): Pro
 }
 
 // Client-side filtering function (in case mock API doesn't support filtering)
-function applyClientSideFiltering(artists: Artist[], searchParams: ExplorePageProps["searchParams"]): Artist[] {
+function applyClientSideFiltering(
+  artists: Artist[],
+  searchParams: {
+    categories?: string
+    locations?: string
+    minPrice?: string
+    maxPrice?: string
+    view?: string
+  },
+): Artist[] {
   let filtered = [...artists]
 
   // Filter by categories
@@ -144,7 +162,13 @@ function applyClientSideFiltering(artists: Artist[], searchParams: ExplorePagePr
 }
 
 // Server-side function to get current filter state from search params
-function getFiltersFromSearchParams(searchParams: ExplorePageProps["searchParams"]): FilterState {
+function getFiltersFromSearchParams(searchParams: {
+  categories?: string
+  locations?: string
+  minPrice?: string
+  maxPrice?: string
+  view?: string
+}): FilterState {
   return {
     categories: searchParams.categories ? searchParams.categories.split(",").filter(Boolean) : [],
     locations: searchParams.locations ? searchParams.locations.split(",").filter(Boolean) : [],
@@ -156,7 +180,17 @@ function getFiltersFromSearchParams(searchParams: ExplorePageProps["searchParams
 }
 
 // Artists Content Server Component
-async function ArtistsContent({ searchParams }: { searchParams: ExplorePageProps["searchParams"] }) {
+async function ArtistsContent({
+  searchParams,
+}: {
+  searchParams: {
+    categories?: string
+    locations?: string
+    minPrice?: string
+    maxPrice?: string
+    view?: string
+  }
+}) {
   // Server-side data fetching from mock API
   const { artists, totalCount, filteredCount } = await fetchArtists(searchParams)
   const currentFilters = getFiltersFromSearchParams(searchParams)
@@ -248,7 +282,7 @@ async function ArtistsContent({ searchParams }: { searchParams: ExplorePageProps
             </FadeIn>
           ) : null}
 
-         
+          
         </div>
       </div>
     </>
@@ -256,6 +290,9 @@ async function ArtistsContent({ searchParams }: { searchParams: ExplorePageProps
 }
 
 export default async function ExplorePage({ searchParams }: ExplorePageProps) {
+  // ✅ RESOLVE THE PROMISE HERE
+  const resolvedSearchParams = await searchParams
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -267,7 +304,7 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
 
         {/* Artists Content with Suspense */}
         <Suspense fallback={<LoadingArtists />}>
-          <ArtistsContent searchParams={searchParams} />
+          <ArtistsContent searchParams={resolvedSearchParams} />
         </Suspense>
       </div>
     </div>
