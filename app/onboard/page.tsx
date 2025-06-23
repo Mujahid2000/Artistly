@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-
+import jsonData from '../../data/artists.json'
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { X, CheckCircle, ArrowRight, ArrowLeft, AlertCircle } from "lucide-react"
@@ -69,7 +69,7 @@ export default function OnboardPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [submittedArtistId, setSubmittedArtistId] = useState<string | null>(null)
+  // const [submittedArtistId, setSubmittedArtistId] = useState<string | null>(null)
 
   const {
     register,
@@ -98,14 +98,10 @@ export default function OnboardPage() {
     setSubmitError(null)
     console.log(data)
     try {
-      const result = await submitArtistApplication(data)
-
-      if (result.success) {
-        setSubmittedArtistId(result.artistId || null)
-        setIsSubmitted(true)
-      } else {
-        setSubmitError(result.message)
-      }
+      const result = await submitArtistApplication(data);
+      console.log(result)
+      // setSubmittedArtistId(result.artistId || null)
+      setIsSubmitted(true)
     } catch (error) {
       console.error("Form submission error:", error)
       setSubmitError("An unexpected error occurred. Please try again.")
@@ -167,9 +163,9 @@ export default function OnboardPage() {
                   Thank you for joining Artistly! We&apos;ll review your application and get back to you within 2-3 business
                   days.
                 </p>
-                {submittedArtistId && (
+                {jsonData.length !== 0 && (
                   <p className="text-sm text-gray-500 mb-6">
-                    Your application ID: <span className="font-mono font-semibold">#{submittedArtistId}</span>
+                    Your application ID: <span className="font-mono font-semibold">#{jsonData.length+1}</span>
                   </p>
                 )}
                 <div className="space-y-3">
