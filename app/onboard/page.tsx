@@ -295,7 +295,7 @@ export default function OnboardPage() {
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="name">Full Name *</Label>
+                        <Label htmlFor="name" className="py-2">Full Name *</Label>
                         <Input
                           id="name"
                           {...register("name")}
@@ -306,7 +306,7 @@ export default function OnboardPage() {
                       </div>
 
                       <div>
-                        <Label htmlFor="email">Email Address *</Label>
+                        <Label htmlFor="email" className="py-2">Email Address *</Label>
                         <Input
                           id="email"
                           type="email"
@@ -322,7 +322,7 @@ export default function OnboardPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="phone">Phone Number *</Label>
+                        <Label htmlFor="phone" className="py-2">Phone Number *</Label>
                         <Input
                           id="phone"
                           {...register("phone")}
@@ -335,7 +335,7 @@ export default function OnboardPage() {
                       </div>
 
                       <div>
-                        <Label htmlFor="location">Location *</Label>
+                        <Label htmlFor="location" className="py-2">Location *</Label>
                         <Input
                           id="location"
                           {...register("location")}
@@ -355,7 +355,7 @@ export default function OnboardPage() {
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="category">Category *</Label>
+                        <Label htmlFor="category" className="py-2">Category *</Label>
                         <Controller
                           name="category"
                           control={control}
@@ -367,7 +367,7 @@ export default function OnboardPage() {
                               }}
                               value={field.value}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select your category" />
                               </SelectTrigger>
                               <SelectContent>
@@ -386,7 +386,7 @@ export default function OnboardPage() {
                       </div>
 
                       <div>
-                        <Label htmlFor="experience">Experience Level *</Label>
+                        <Label htmlFor="experience" className="py-2">Experience Level *</Label>
                         <Controller
                           name="experience"
                           control={control}
@@ -398,7 +398,7 @@ export default function OnboardPage() {
                               }}
                               value={field.value}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="py-2 w-full">
                                 <SelectValue placeholder="Select experience level" />
                               </SelectTrigger>
                               <SelectContent>
@@ -418,7 +418,7 @@ export default function OnboardPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="bio">Bio *</Label>
+                      <Label htmlFor="bio" className="py-2">Bio *</Label>
                       <Textarea
                         id="bio"
                         {...register("bio")}
@@ -433,7 +433,7 @@ export default function OnboardPage() {
                     </div>
 
                     <div>
-                      <Label>Languages *</Label>
+                      <Label className="py-2">Languages *</Label>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
                         {languages.map((language) => (
                           <div key={language} className="flex items-center space-x-2">
@@ -472,7 +472,7 @@ export default function OnboardPage() {
                 {currentStep === 3 && (
                   <>
                     <div>
-                      <Label htmlFor="fee">Fee Range *</Label>
+                      <Label htmlFor="fee" className="py-2">Fee Range *</Label>
                       <Controller
                         name="fee"
                         control={control}
@@ -484,7 +484,7 @@ export default function OnboardPage() {
                             }}
                             value={field.value}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select your fee range" />
                             </SelectTrigger>
                             <SelectContent>
@@ -501,7 +501,7 @@ export default function OnboardPage() {
                     </div>
 
                     <div>
-                      <Label>Availability *</Label>
+                      <Label className="py-2">Availability *</Label>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
                         {availabilityOptions.map((option) => (
                           <div key={option} className="flex items-center space-x-2">
@@ -554,7 +554,7 @@ export default function OnboardPage() {
                     </div>
 
                     <div>
-                      <Label>Profile Image *</Label>
+                      <Label className="py-3">Profile Image *</Label>
                       <Controller
                         name="image"
                         control={control}
