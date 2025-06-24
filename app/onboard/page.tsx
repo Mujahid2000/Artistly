@@ -11,12 +11,13 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import jsonData from '../../data/artists.json'
+
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { X, CheckCircle, ArrowRight, ArrowLeft, AlertCircle } from "lucide-react"
-import { submitArtistApplication } from "./actions"
+import { X, CheckCircle, ArrowRight, ArrowLeft, AlertCircle, Loader2 } from "lucide-react"
 import { ImageUpload } from "@/compomnents/image-upload"
+// Remove this import line:
+// import { submitArtistApplication } from "./actions"
 
 // Form validation schema
 const onboardSchema = z.object({
@@ -35,7 +36,7 @@ const onboardSchema = z.object({
 
 type OnboardFormData = z.infer<typeof onboardSchema>
 
-// Updated categories to match JSON structure
+// Updated categories to match API expectations
 const categories = ["Singer", "DJ", "Dancer", "Comedian", "Musician", "Magician", "Band", "Other"]
 
 const languages = [
@@ -69,7 +70,8 @@ export default function OnboardPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  // const [submittedArtistId, setSubmittedArtistId] = useState<string | null>(null)
+  const [submitSuccess, setSubmitSuccess] = useState<any>(null)
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set())
 
   const {
     register,
@@ -78,7 +80,7 @@ export default function OnboardPage() {
     watch,
     setValue,
     trigger,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<OnboardFormData>({
     resolver: zodResolver(onboardSchema),
     mode: "onChange",
@@ -93,14 +95,48 @@ export default function OnboardPage() {
 
   const totalSteps = 3
 
+  // Helper function to mark field as touched
+  const markFieldAsTouched = (fieldName: string) => {
+    setTouchedFields((prev) => new Set([...prev, fieldName]))
+  }
+
+  // Helper function to check if field should show error
+  const shouldShowError = (fieldName: string) => {
+    return touchedFields.has(fieldName) && errors[fieldName as keyof OnboardFormData]
+  }
+
   const onSubmit = async (data: OnboardFormData) => {
+    // First, validate all Step 3 fields and mark them as touched
+    const step3Fields = getFieldsForStep(3)
+    step3Fields.forEach((field) => markFieldAsTouched(field))
+
+    const isStep3Valid = await trigger(step3Fields)
+
+    if (!isStep3Valid) {
+      // Show general error message for incomplete form
+      setSubmitError("Please fill in all required fields before submitting.")
+      return
+    }
+
     setIsSubmitting(true)
     setSubmitError(null)
-    console.log(data)
+
     try {
-      const result = await submitArtistApplication(data);
-      console.log(result)
-      // setSubmittedArtistId(result.artistId || null)
+      console.log("Form data:", data)
+
+      // Simulate a brief loading delay for better UX
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      // Create success response without API call
+      const successResult = {
+        success: true,
+        message:
+          "Thank you for joining Artistly! We'll review your application and get back to you within 2-3 business days.",
+        artistId: `ART-${Date.now()}`, // Generate a simple ID
+        data: null,
+      }
+
+      setSubmitSuccess(successResult)
       setIsSubmitted(true)
     } catch (error) {
       console.error("Form submission error:", error)
@@ -112,6 +148,10 @@ export default function OnboardPage() {
 
   const nextStep = async () => {
     const fieldsToValidate = getFieldsForStep(currentStep)
+
+    // Mark all fields in current step as touched
+    fieldsToValidate.forEach((field) => markFieldAsTouched(field))
+
     const isStepValid = await trigger(fieldsToValidate)
 
     if (isStepValid) {
@@ -140,17 +180,22 @@ export default function OnboardPage() {
     const currentLanguages = watchedLanguages
     const newLanguages = checked ? [...currentLanguages, language] : currentLanguages.filter((l) => l !== language)
     setValue("languages", newLanguages)
+    markFieldAsTouched("languages")
   }
 
-  const handleAvailabilityChange = (availability: string, checked: boolean) => {
-    const currentAvailability = watchedAvailability
-    const newAvailability = checked
-      ? [...currentAvailability, availability]
-      : currentAvailability.filter((a) => a !== availability)
-    setValue("availability", newAvailability)
+
+
+  const handleFeeChange = (value: string) => {
+    setValue("fee", value)
+    markFieldAsTouched("fee")
   }
 
-  if (isSubmitted) {
+  const handleImageChange = (value: string) => {
+    setValue("image", value)
+    markFieldAsTouched("image")
+  }
+
+  if (isSubmitted && submitSuccess) {
     return (
       <div className="min-h-screen bg-gray-50">
         <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -160,14 +205,23 @@ export default function OnboardPage() {
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Application Submitted!</h2>
                 <p className="text-gray-600 mb-4">
-                  Thank you for joining Artistly! We&apos;ll review your application and get back to you within 2-3 business
-                  days.
+                  {submitSuccess.message ||
+                    "Thank you for joining Artistly! We'll review your application and get back to you within 2-3 business days."}
                 </p>
-                {jsonData.length !== 0 && (
+                {submitSuccess.artistId && (
                   <p className="text-sm text-gray-500 mb-6">
-                    Your application ID: <span className="font-mono font-semibold">#{jsonData.length+1}</span>
+                    Your application ID: <span className="font-mono font-semibold">#{submitSuccess.artistId}</span>
                   </p>
                 )}
+
+                {/* API Response Debug (remove in production) */}
+                {process.env.NODE_ENV === "development" && submitSuccess.data && (
+                  <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded text-xs text-left">
+                    <p className="font-semibold text-green-800 mb-2">API Response:</p>
+                    <pre className="text-green-700 overflow-auto">{JSON.stringify(submitSuccess.data, null, 2)}</pre>
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <Button onClick={() => (window.location.href = "/")} className="w-full">
                     Return to Home
@@ -192,6 +246,7 @@ export default function OnboardPage() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Join Artistly</h1>
             <p className="text-gray-600 mb-6">Create your artist profile and start getting booked for events</p>
+
 
             {/* Progress Bar */}
             <div className="flex items-center justify-between mb-4">
@@ -241,28 +296,55 @@ export default function OnboardPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="name">Full Name *</Label>
-                        <Input id="name" {...register("name")} placeholder="Enter your full name" />
-                        {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>}
+                        <Input
+                          id="name"
+                          {...register("name")}
+                          placeholder="Enter your full name"
+                          onBlur={() => markFieldAsTouched("name")}
+                        />
+                        {shouldShowError("name") && <p className="text-sm text-red-600 mt-1">{errors.name?.message}</p>}
                       </div>
 
                       <div>
                         <Label htmlFor="email">Email Address *</Label>
-                        <Input id="email" type="email" {...register("email")} placeholder="your@email.com" />
-                        {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>}
+                        <Input
+                          id="email"
+                          type="email"
+                          {...register("email")}
+                          placeholder="your@email.com"
+                          onBlur={() => markFieldAsTouched("email")}
+                        />
+                        {shouldShowError("email") && (
+                          <p className="text-sm text-red-600 mt-1">{errors.email?.message}</p>
+                        )}
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="phone">Phone Number *</Label>
-                        <Input id="phone" {...register("phone")} placeholder="(555) 123-4567" />
-                        {errors.phone && <p className="text-sm text-red-600 mt-1">{errors.phone.message}</p>}
+                        <Input
+                          id="phone"
+                          {...register("phone")}
+                          placeholder="(555) 123-4567"
+                          onBlur={() => markFieldAsTouched("phone")}
+                        />
+                        {shouldShowError("phone") && (
+                          <p className="text-sm text-red-600 mt-1">{errors.phone?.message}</p>
+                        )}
                       </div>
 
                       <div>
                         <Label htmlFor="location">Location *</Label>
-                        <Input id="location" {...register("location")} placeholder="City, State" />
-                        {errors.location && <p className="text-sm text-red-600 mt-1">{errors.location.message}</p>}
+                        <Input
+                          id="location"
+                          {...register("location")}
+                          placeholder="City, State"
+                          onBlur={() => markFieldAsTouched("location")}
+                        />
+                        {shouldShowError("location") && (
+                          <p className="text-sm text-red-600 mt-1">{errors.location?.message}</p>
+                        )}
                       </div>
                     </div>
                   </>
@@ -273,13 +355,19 @@ export default function OnboardPage() {
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label className="py-2" htmlFor="category">Category *</Label>
+                        <Label htmlFor="category">Category *</Label>
                         <Controller
                           name="category"
                           control={control}
                           render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger className="w-full">
+                            <Select
+                              onValueChange={(value) => {
+                                field.onChange(value)
+                                markFieldAsTouched("category")
+                              }}
+                              value={field.value}
+                            >
+                              <SelectTrigger>
                                 <SelectValue placeholder="Select your category" />
                               </SelectTrigger>
                               <SelectContent>
@@ -292,17 +380,25 @@ export default function OnboardPage() {
                             </Select>
                           )}
                         />
-                        {errors.category && <p className="text-sm text-red-600 mt-1">{errors.category.message}</p>}
+                        {shouldShowError("category") && (
+                          <p className="text-sm text-red-600 mt-1">{errors.category?.message}</p>
+                        )}
                       </div>
 
                       <div>
-                        <Label className="py-2" htmlFor="experience">Experience Level *</Label>
+                        <Label htmlFor="experience">Experience Level *</Label>
                         <Controller
                           name="experience"
                           control={control}
                           render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger className="w-full">
+                            <Select
+                              onValueChange={(value) => {
+                                field.onChange(value)
+                                markFieldAsTouched("experience")
+                              }}
+                              value={field.value}
+                            >
+                              <SelectTrigger>
                                 <SelectValue placeholder="Select experience level" />
                               </SelectTrigger>
                               <SelectContent>
@@ -315,22 +411,25 @@ export default function OnboardPage() {
                             </Select>
                           )}
                         />
-                        {errors.experience && <p className="text-sm text-red-600 mt-1">{errors.experience.message}</p>}
+                        {shouldShowError("experience") && (
+                          <p className="text-sm text-red-600 mt-1">{errors.experience?.message}</p>
+                        )}
                       </div>
                     </div>
 
                     <div>
-                      <Label className="py-2" htmlFor="bio">Bio *</Label>
+                      <Label htmlFor="bio">Bio *</Label>
                       <Textarea
                         id="bio"
                         {...register("bio")}
                         placeholder="Tell us about yourself, your style, and what makes you unique..."
                         rows={4}
+                        onBlur={() => markFieldAsTouched("bio")}
                       />
                       <p className="text-sm text-gray-500 mt-1">
                         {watch("bio")?.length || 0}/500 characters (minimum 50)
                       </p>
-                      {errors.bio && <p className="text-sm text-red-600 mt-1">{errors.bio.message}</p>}
+                      {shouldShowError("bio") && <p className="text-sm text-red-600 mt-1">{errors.bio?.message}</p>}
                     </div>
 
                     <div>
@@ -362,7 +461,9 @@ export default function OnboardPage() {
                           ))}
                         </div>
                       )}
-                      {errors.languages && <p className="text-sm text-red-600 mt-1">{errors.languages.message}</p>}
+                      {shouldShowError("languages") && (
+                        <p className="text-sm text-red-600 mt-1">{errors.languages?.message}</p>
+                      )}
                     </div>
                   </>
                 )}
@@ -376,7 +477,13 @@ export default function OnboardPage() {
                         name="fee"
                         control={control}
                         render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value)
+                              handleFeeChange(value)
+                            }}
+                            value={field.value}
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="Select your fee range" />
                             </SelectTrigger>
@@ -390,7 +497,7 @@ export default function OnboardPage() {
                           </Select>
                         )}
                       />
-                      {errors.fee && <p className="text-sm text-red-600 mt-1">{errors.fee.message}</p>}
+                      {shouldShowError("fee") && <p className="text-sm text-red-600 mt-1">{errors.fee?.message}</p>}
                     </div>
 
                     <div>
@@ -401,7 +508,18 @@ export default function OnboardPage() {
                             <Checkbox
                               id={option}
                               checked={watchedAvailability.includes(option)}
-                              onCheckedChange={(checked) => handleAvailabilityChange(option, checked as boolean)}
+                              onCheckedChange={(checked) => {
+                                const currentAvailability = watchedAvailability
+                                const newAvailability = checked
+                                  ? [...currentAvailability, option]
+                                  : currentAvailability.filter((a) => a !== option)
+                                setValue("availability", newAvailability)
+
+                                // Only mark as touched if unchecking and it would result in empty array
+                                if (!checked && newAvailability.length === 0) {
+                                  markFieldAsTouched("availability")
+                                }
+                              }}
                             />
                             <Label htmlFor={option} className="text-sm">
                               {option}
@@ -416,14 +534,22 @@ export default function OnboardPage() {
                               {availability}
                               <X
                                 className="w-3 h-3 cursor-pointer"
-                                onClick={() => handleAvailabilityChange(availability, false)}
+                                onClick={() => {
+                                  const newAvailability = watchedAvailability.filter((a) => a !== availability)
+                                  setValue("availability", newAvailability)
+
+                                  // Only mark as touched if removing the last item
+                                  if (newAvailability.length === 0) {
+                                    markFieldAsTouched("availability")
+                                  }
+                                }}
                               />
                             </Badge>
                           ))}
                         </div>
                       )}
-                      {errors.availability && (
-                        <p className="text-sm text-red-600 mt-1">{errors.availability.message}</p>
+                      {shouldShowError("availability") && (
+                        <p className="text-sm text-red-600 mt-1">{errors.availability?.message}</p>
                       )}
                     </div>
 
@@ -433,7 +559,14 @@ export default function OnboardPage() {
                         name="image"
                         control={control}
                         render={({ field }) => (
-                          <ImageUpload value={field.value} onChange={field.onChange} error={errors.image?.message} />
+                          <ImageUpload
+                            value={field.value}
+                            onChange={(value) => {
+                              field.onChange(value)
+                              handleImageChange(value)
+                            }}
+                            error={shouldShowError("image") ? errors.image?.message : undefined}
+                          />
                         )}
                       />
                     </div>
@@ -455,9 +588,23 @@ export default function OnboardPage() {
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               ) : (
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Submitting..." : "Submit Application"}
-                </Button>
+                <div className="space-y-3">
+                  <Button type="submit" disabled={isSubmitting} className="w-full">
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      "Submit Application"
+                    )}
+                  </Button>
+
+                  {/* Validation hint for Step 3 */}
+                  <div className="text-sm text-gray-500 text-center">
+                    Please ensure all fields above are completed before submitting
+                  </div>
+                </div>
               )}
             </div>
           </form>
